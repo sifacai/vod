@@ -4,7 +4,7 @@ body{
 }
 
 h1{
-	font-size: 26;
+	font-size: 18;
 }
 
 hr{
@@ -14,8 +14,8 @@ hr{
 
 .topmenu{
 	width: 100%;
-	font-size: 28;
-	text-align: left;
+	font-size: 18;
+	text-align: center;
 }
 
 .topmenu i{
@@ -25,26 +25,24 @@ hr{
 
 .pitem{
 	width: 100%;
-	line-height: 60px;
+	line-height: 26px;
 	text-align: left;
 	vertical-align: middle;
+	font-size: 24px;
 }
 
 .pitem a{
 	width: 100%;
-	vertical-align: middle;
-	display: block;
+	margin-left: 10px;
 }
 
-span{
-	height: 50px;
-	float: left;
+video{
+	width:640px;
 }
-
 
 .videoDiv{
 	width: 100%;
-	font-size: 20;
+	font-size: 24;
 }
 
 .videoDiv img{

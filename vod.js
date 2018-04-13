@@ -71,20 +71,9 @@ http.createServer(function(req,ress){
 	var realpathname = "";
 
 	switch(pathname){
-		case "/folderimg":
-			realpathname = "images/3.png";
-			break;
+		
 		case "/css.css":
 			realpathname = "css.css";
-			break;
-		case "/caomei/style.css":
-			realpathname = "caomei/style.css";
-			break;
-		case "/caomei/fonts/strawberryicon.ttf":
-			realpathname = "caomei/fonts/strawberryicon.ttf";
-			break;
-		case "/caomei/fonts/strawberryicon.woff":
-			realpathname = "caomei/fonts/strawberryicon.woff";
 			break;
 		default:
 			realpathname = root + pathname;
@@ -159,7 +148,7 @@ function readdir(path){
 }
 
 function videohtml(path,file){
-	var jpg= path + file.replace(pathh.extname(file),".jpg");
+	var jpg = path + file.replace(pathh.extname(file),".jpg");
 	var div =   "<div class='videoDiv' >" +
 				"<p><a href='?name=play&filename=" + path + file + "' ><h1>" + file + "</h1> </a> </p>" + 
 				"<a href='" + jpg + "' ><img src='"+ jpg +"'  /> </a>" +
@@ -176,7 +165,7 @@ function videohtml(path,file){
 function playhtml(pathname){
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
-	res.write("<video src='"+pathname+"' controls='controls' width='100%' preload >您的需要更高级的浏览器。</video>");
+	res.write("<video src='"+pathname+"' controls='controls' preload >您的需要更高级的浏览器。</video>");
 	res.end(htmlbottom);
 }
 
@@ -253,11 +242,8 @@ function outmiss(txt){
 }
 
 function login(txt){
-	var clearCookie =  "<script type=\"text/javascript\">" +
-						"var keys=document.cookie.match(/[^ =;]+(?=\=)/g);" + 
-						"if (keys) { " +
-						"for (var i = keys.length; i--;) " +
-						"document.cookie=keys[i]+'=0;expires=' + new Date( 0).toUTCString(); "+
+	var clearCookie =   "<script type=\"text/javascript\">" +
+						"clearcookie();" +
 						"} </script>" ;
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
@@ -270,7 +256,8 @@ function login(txt){
 var htmlheader = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no\" />" +	
-			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +			     
+			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +	
+			     "<script src='text/javascript' href='js.js' ></script>" +	     
 			     "</head><body>";
 
 var htmlbottom = "</body></html>";
@@ -280,5 +267,3 @@ var htmllogin = " <form method=\"post\" action=\"\" > " +
 			    " <p>密  码: <input type=\"password\" name=\"password\" /></p> " +
 			    " <input type=\"submit\" value=\"提  交\" /> " +
 			    " </form>" ;
-
-var DirCss = "";//style=\"width:30%;float:left;background-color:yellow;border:1px solid black\"" ;
