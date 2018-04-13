@@ -23,23 +23,24 @@ http.createServer(function(req,ress){
 	var cookies=req.headers.cookie;	
 	
 	if(cookies == undefined){                   //cookie检查
-		var body="";
+		
 		if(req.method=="POST"){
+			var postdata="";
 			req.on("data",function(data){
-				body += data;
+				postdata += data;
 			});
 
 			req.on("end",function(){				
-				body = qs.parse(body);
-				console.log(body);
-				if(body.user==user & password==body.password){
-					body.password= md5(body.password);
+				postdata = qs.parse(postdata);
+				console.log(postdata);
+				if(postdata.user==user & password==postdata.password){
+					postdata.password= md5(postdata.password);
 					res.writeHead(200,{
 										"Content-Type": "text/html" ,
-										"Set-Cookie"  : ["user="+user,"password="+body.password]
+										"Set-Cookie"  : ["user="+user,"password="+postdata.password]
 										});
 
-					res.end(htmlheader+"<script>window.location.reload();</script>"+htmlbottom);
+					res.end(htmlheader+"<script>alert('跳转');window.location.href='';</script>"+htmlbottom);
 				}else{
 					res.end(htmlheader+"用户名或密码错误！"+htmlbottom);					
 				}
@@ -74,6 +75,9 @@ http.createServer(function(req,ress){
 		
 		case "/css.css":
 			realpathname = "css.css";
+			break;
+		case "/js.js":
+			realpathname = "js.js";
 			break;
 		default:
 			realpathname = root + pathname;
@@ -243,8 +247,11 @@ function outmiss(txt){
 
 function login(txt){
 	var clearCookie =   "<script type=\"text/javascript\">" +
-						"clearcookie();" +
-						"} </script>" ;
+						"var cookie = document.cookie;" +
+						"alert(cookie);"+
+						"document.cookie=\"\";"+
+						"alert(cookie);"+
+						"</script>" ;
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
 	res.write(clearCookie);
@@ -257,7 +264,7 @@ var htmlheader = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/h
 				 "<meta name=\"viewport\" content=\"width=device-width\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no\" />" +	
 			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +	
-			     "<script type='text/javascript' src='/js.js' >clearcookie();</script>" +	     
+			     "<script type='text/javascript' src='/js.js' ></script>" +	     
 			     "</head><body>";
 
 var htmlbottom = "</body></html>";
