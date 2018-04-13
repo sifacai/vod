@@ -257,7 +257,7 @@ var htmlheader = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/h
 				 "<meta name=\"viewport\" content=\"width=device-width\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no\" />" +	
 			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +	
-			     "<script src='text/javascript' href='js.js' ></script>" +	     
+			     "<script type='text/javascript' src='/js.js' >clearcookie();</script>" +	     
 			     "</head><body>";
 
 var htmlbottom = "</body></html>";
