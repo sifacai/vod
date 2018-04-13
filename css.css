@@ -15,13 +15,12 @@ hr{
 .topmenu{
 	width: 100%;
 	font-size: 28;
+	text-align: left;
 }
 
-.topmenu li a{
-	width: 15%;
-	text-align: left;
-	font-size: 28;
-
+.topmenu i{
+	width: 38px;
+	margin-right: 12px;
 }
 
 .pitem{

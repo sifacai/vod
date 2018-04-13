@@ -139,14 +139,14 @@ function readdir(path){
 			})	
 
 			itemfolders.forEach(function(file){
-				var div = "<p class='pitem'><a class='czs-folder-l' href='"+ path.replace(root,"") + file +"' >"+file+"</a></p><hr/>";
+				var div = "<p class='pitem'><a href='"+ path.replace(root,"") + file +"' >"+file+"</a></p><hr/>";
 				res.write(div);
 			});
 
 			itemfiles.forEach(function(file){
 				var div = "";
 				if(videoMime[pathh.extname(file)]==undefined){
-					//div = "<p class='pitem'><a class='czs-book' href='"+ path.replace(root,"") + file +"' >"+file+"</a></p><hr/>";					
+					//div = "<p><a href='"+ path.replace(root,"") + file +"' >"+file+"</a></p><hr/>";					
 				}else{
 					div = videohtml(path.replace(root,""),file);
 				}
@@ -181,17 +181,17 @@ function playhtml(pathname){
 }
 
 function topmenu(path){
-	var div = "<ul class='topmenu'><li><a href='/'>首页</a></li>";
+	var div = "<p class='topmenu'><i><a href='/'>首页</a></i>";
 	var paths=path.split("/");
 	var pp = "";
 	paths.forEach(function(p){
 		if(p != ""){
 			pp = pp + "/" + p
-			div += "<li><a href='"+ pp +"'>"+p+"</a></li>";
+			div += "<i><a href='"+ pp +"'>"+p+"</a></i>";
 		}
 		
 	});
-	div += "</ul><hr/>";
+	div += "</p><hr/>";
 	return div;
 }
 
@@ -270,8 +270,7 @@ function login(txt){
 var htmlheader = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no\" />" +	
-			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +
-			     "<link rel=\"stylesheet\" href=\"/caomei/style.css\" />" +
+			     "<link rel=\"stylesheet\" href=\"/css.css\" />" +			     
 			     "</head><body>";
 
 var htmlbottom = "</body></html>";
