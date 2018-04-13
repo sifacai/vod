@@ -9,7 +9,6 @@ var videoMime = require("./videoMime.json")
 var user="user";
 var password="password";
 
-//var root = "/srv/dev-disk-by-label-store/jp";
 var root = "d:";  //根目录
 
 var res; //response
