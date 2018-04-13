@@ -10,7 +10,7 @@ var user="user";
 var password="password";
 
 var root = "d:";  //根目录
-aa
+
 var res; //response
 
 http.createServer(function(req,ress){
