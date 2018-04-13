@@ -1,0 +1,62 @@
+body{
+	margin: 20px auto;
+	text-align:center;
+}
+
+h1{
+	font-size: 26;
+}
+
+hr{
+	width: 100%;
+	clear: both;
+}
+
+.topmenu{
+	width: 100%;
+	font-size: 28;
+}
+
+.topmenu li a{
+	width: 15%;
+	text-align: left;
+	font-size: 28;
+
+}
+
+.pitem{
+	width: 100%;
+	line-height: 60px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.pitem a{
+	width: 100%;
+	vertical-align: middle;
+	display: block;
+}
+
+span{
+	height: 50px;
+	float: left;
+}
+
+
+.videoDiv{
+	width: 100%;
+	font-size: 20;
+}
+
+.videoDiv img{
+	width: 35%;
+	float: left;
+	margin-right: 20px;
+	margin-bottom: 20px;
+}
+
+.videoDiv li{
+	line-height: 42px;
+	width: 100%;
+	text-align: left;
+}
