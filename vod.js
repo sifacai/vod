@@ -22,45 +22,45 @@ http.createServer(function(req,ress){
 	var pathname=qs.unescape(requrl.pathname);     //路径
 	var cookies=req.headers.cookie;	
 	
-	if(cookies == undefined){                   //cookie检查
-		
-		if(req.method=="POST"){
-			var postdata="";
-			req.on("data",function(data){
-				postdata += data;
-			});
 
-			req.on("end",function(){				
-				postdata = qs.parse(postdata);
-				console.log(postdata);
-				if(postdata.user==user & password==postdata.password){
-					postdata.password= md5(postdata.password);
-					res.writeHead(200,{
-										"Content-Type": "text/html" ,
-										"Set-Cookie"  : ["user="+user,"password="+postdata.password]
-										});
+	//cookie检查	
+	if(req.method=="POST"){
+		var postdata="";
+		req.on("data",function(data){
+			postdata += data;
+		});
 
-					res.end(htmlheader+"<script>alert('跳转');window.location.href='';</script>"+htmlbottom);
-				}else{
-					res.end(htmlheader+"用户名或密码错误！"+htmlbottom);					
-				}
-			});
-		}else{
-			login("请登录！");
-		}
+		req.on("end",function(){				
+			postdata = qs.parse(postdata);
+			console.log(postdata);
+			if(postdata.user==user & password==postdata.password){
+				console.log(req.connection.remoteAddress + "登录成功!");
+				postdata.password= md5(postdata.password);
+				res.writeHead(200,{
+									"Content-Type": "text/html" ,
+									"Set-Cookie"  : ["user="+user,"password="+postdata.password]
+									});
+
+				res.end(htmlheader+"<script>window.location.href='';</script>"+htmlbottom);
+			}else{
+				res.end(htmlheader+"用户名或密码错误！"+htmlbottom);					
+			}
+		});
 		return;
-	
-	}else{
-		cookies=qs.parse(cookies,"; ");
-		if(user!=cookies.user){
-			login("用户名错误！");			
-			return;
-		}
-		if(md5(password)!=cookies.password){
-			login("密码错误！");
-			return;
-		}
 	}
+
+	cookies=qs.parse(cookies,"; ");
+	if(user!=cookies.user){
+		login("用户名错误！");			
+		return;
+	}
+	if(md5(password)!=cookies.password){
+		login("密码错误！");
+		return;
+	}
+
+	
+
 
 
 	//播放视频
@@ -245,16 +245,9 @@ function outmiss(txt){
 	res.end(htmlheader+txt+htmlbottom);
 }
 
-function login(txt){
-	var clearCookie =   "<script type=\"text/javascript\">" +
-						"var cookie = document.cookie;" +
-						"alert(cookie);"+
-						"document.cookie=\"\";"+
-						"alert(cookie);"+
-						"</script>" ;
+function login(txt){	
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
-	res.write(clearCookie);
 	res.write("<h1>"+txt+"</h1>");
 	res.write(htmllogin);
 	res.end(htmlbottom);
