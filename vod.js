@@ -59,10 +59,6 @@ http.createServer(function(req,ress){
 		return;
 	}
 
-	
-
-
-
 	//播放视频
 	if(args["name"]=="play"){              
 		playhtml(args["filename"]);
@@ -151,44 +147,6 @@ function readdir(path){
 	})
 }
 
-function videohtml(path,file){
-	var jpg = path + file.replace(pathh.extname(file),".jpg");
-	var div =   "<div class='videoDiv' >" +
-				"<p><a href='?name=play&filename=" + path + file + "' ><h1>" + file + "</h1> </a> </p>" + 
-				"<a href='" + jpg + "' ><img src='"+ jpg +"'  /> </a>" +
-				"<li>电影名称：" + file + "</li>" +
-				"<li>豆瓣评分：</li>" +
-				"<li>年代：</li>" +
-				"<li>类型：</li>" +
-				"<li>主要演员：</li>" +
-				"<li>简介：</li>" +
-				"</div><hr/>";
-	return div;
-}
-
-function playhtml(pathname){
-	res.writeHead(200,{"Content-Type":"text/html"});
-	res.write(htmlheader);
-	res.write("<video src='"+pathname+"' controls='controls' preload >您的需要更高级的浏览器。</video>");
-	res.end(htmlbottom);
-}
-
-function topmenu(path){
-	var div = "<p class='topmenu'><i><a href='/'>首页</a></i>";
-	var paths=path.split("/");
-	var pp = "";
-	paths.forEach(function(p){
-		if(p != ""){
-			pp = pp + "/" + p
-			div += "<i><a href='"+ pp +"'>"+p+"</a></i>";
-		}
-		
-	});
-	div += "</p><hr/>";
-	return div;
-}
-
-
 function transFile(path,mime,range){
 	realpath = path;	
 	var stat = checkpathstat(realpath);
@@ -201,7 +159,6 @@ function transFile(path,mime,range){
 		startPos = Number(range.substr(0,range.indexOf("-")).trim());
 	}
 
-	console.log(startPos);
 	var LastModified = stat.mtime ;
 	var etag = md5(realpath+LastModified);
 
@@ -217,8 +174,7 @@ function transFile(path,mime,range){
 							"Last-Modified"  : LastModified.toUTCString()
 						});
 	
-	var readstream = fs.createReadStream(realpath,{ flags: "r",start: startPos, end: stat.size });
-	console.log("开始传送：" + path );
+	var readstream = fs.createReadStream(realpath,{ flags: "r",start: startPos, end: stat.size });	
 	readstream.pipe(res);
 }
 
@@ -252,6 +208,46 @@ function login(txt){
 	res.write(htmllogin);
 	res.end(htmlbottom);
 }
+
+function videohtml(path,file){
+	//var jpg = path + file.replace(pathh.extname(file),".jpg");
+	var jpg = "/cover/" + file.replace(pathh.extname(file),".jpg");
+	var div =   "<div class='videoDiv' >" +
+				"<p><a href='?name=play&filename=" + path + file + "' ><h1>" + file + "</h1> </a> </p>" + 
+				"<a href='" + jpg + "' ><img src='"+ jpg +"'  /> </a>" +
+				"<li>电影名称：" + file + "</li>" +
+				"<li>豆瓣评分：</li>" +
+				"<li>年代：</li>" +
+				"<li>类型：</li>" +
+				"<li>主要演员：</li>" +
+				"<li>简介：</li>" +
+				"</div><hr/>";
+	return div;
+}
+
+function playhtml(pathname){
+	res.writeHead(200,{"Content-Type":"text/html"});
+	res.write(htmlheader);
+	res.write("<video src='"+pathname+"' controls='controls' preload >您需要更高级的浏览器。</video>");
+	res.end(htmlbottom);
+}
+
+function topmenu(path){
+	var div = "<p class='topmenu'><i><a href='/'>首页</a></i>";
+	var paths=path.split("/");
+	var pp = "";
+	paths.forEach(function(p){
+		if(p != ""){
+			pp = pp + "/" + p
+			div += "<i><a href='"+ pp +"'>"+p+"</a></i>";
+		}
+		
+	});
+	div += "</p><hr/>";
+	return div;
+}
+
+
 
 var htmlheader = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
 				 "<meta name=\"viewport\" content=\"width=device-width\" />" +
