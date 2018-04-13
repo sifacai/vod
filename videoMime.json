@@ -1,0 +1,8 @@
+{
+	".mkv"  : "application/octet-stream",
+	".avi"  : "video/x-msvideo",
+	".mp4"  : "video/mp4",
+	".rmvb" : "application/vnd.rn-realmedia",
+	".rm"   : "application/vnd.rn-realmedia",
+	".wmv"  : "video/x-ms-wmv"
+}
