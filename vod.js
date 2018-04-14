@@ -71,6 +71,11 @@ http.createServer(function(req,ress){
 		return;
 	}
 
+	if(args["name"]=="pic"){
+		var picn = args[filename];
+		transFile(coverroot+picn,mimeTypes[pat.extname(picn).toLowerCase()],undefined);
+	}
+
 	var realpathname = "";
 
 	switch(pathname){
