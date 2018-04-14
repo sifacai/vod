@@ -4,12 +4,16 @@ var fs = require("fs");
 var pathh = require("path");
 var qs = require("querystring");
 var mimeTypes = require("./mime.json");
-var videoMime = require("./videoMime.json")
+var videoMime = require("./videoMime.json");
+var config = require("./config.json");
+
+var movieinfo = require(config["movieinfofile"]);
+
 
 var user="user";
 var password="password";
 
-var root = "d:";  //根目录
+var root = config["root"];  //根目录
 
 var res; //response
 
