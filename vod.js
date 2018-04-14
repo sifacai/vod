@@ -5,15 +5,17 @@ var pathh = require("path");
 var qs = require("querystring");
 var mimeTypes = require("./mime.json");
 var videoMime = require("./videoMime.json");
+var reptile = require("./reptile");
 var config = require("./config.json");
 
-var movieinfo = require(config["movieinfofile"]);
+var MovieInfoJson = require(config["movieinfofile"]);
 
 
 var user="user";
 var password="password";
 
 var root = config["root"];  //根目录
+var coverroot = config["cover"]; //封面目录
 
 var res; //response
 
@@ -214,18 +216,35 @@ function login(txt){
 }
 
 function videohtml(path,file){
-	//var jpg = path + file.replace(pathh.extname(file),".jpg");
-	var jpg = "/cover/" + file.replace(pathh.extname(file),".jpg");
+	var basename = pathh.basename(file,pathh.extname(file));
+
+	var movieinfo = MovieInfoJson[basename];
+
+	var moviehref = path + file;
+	var cover = "cover.jpg";
+	var dbinfo = [];
+	var rating = "";
+	var summary = "";
+
+	if(movieinfo == undefined){
+		reptile.searchMovie(basename,MovieInfoJson);
+	}else{
+		cover = movieinfo["picfilename"];
+		dbinfo = movieinfo["filminfo"];
+		rating = movieinfo["rating"];
+		summary = movieinfo["summary"];
+	}
+
 	var div =   "<div class='videoDiv' >" +
-				"<p><a href='?name=play&filename=" + path + file + "' ><h1>" + file + "</h1> </a> </p>" + 
-				"<a href='" + jpg + "' ><img src='"+ jpg +"'  /> </a>" +
-				"<li>电影名称：" + file + "</li>" +
-				"<li>豆瓣评分：</li>" +
-				"<li>年代：</li>" +
-				"<li>类型：</li>" +
-				"<li>主要演员：</li>" +
-				"<li>简介：</li>" +
-				"</div><hr/>";
+				"<p><a href='?name=play&filename=" + moviehref + "' ><h1>" + basename + "</h1> </a> </p>" + 
+				"<a href='?name=pic&filename=" + cover + "' ><img src='?name=pic&filename="+ cover +"'  /> </a>" ;
+
+	for(item in dbinfo){
+		div += "<li>"+item+"</li>";
+	}
+
+	div += "<li>简介：" + summary + "</li></div><hr/>" ;
+
 	return div;
 }
 
