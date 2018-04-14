@@ -167,7 +167,6 @@ function transFile(path,mime,range){
 		outmiss("目标没找到！");
 		return;
 	}
-
 	
 	var startPos;
 	if(range==undefined){
@@ -238,9 +237,9 @@ function videohtml(path,file){
 	var rating = "";
 	var summary = "";
 
-	if(movieinfo == undefined){
+	if( movieinfo == undefined ){
 		var searchMovie = new reptile(basename,MovieInfoJson);
-	}else{
+	}else if( movieinfo != "" ){
 		cover = movieinfo["picfilename"];
 		dbinfo = movieinfo["filminfo"];
 		rating = movieinfo["rating"];
@@ -249,6 +248,9 @@ function videohtml(path,file){
 		// console.log("rating"+ rating);
 		// console.log("summary"+ summary);
 		// console.log(dbinfo);
+	}else{
+		dbinfo[0] = "没有资料！";
+		summary = "没有简介" ;
 	}
 
 	var div =   "<div class='videoDiv' >" +
@@ -258,10 +260,7 @@ function videohtml(path,file){
 	dbinfo.forEach(function(item,i){
 		div += "<li>"+ item.trim() + "</li>";
 	});
-	// for(item in dbinfo){
-	// 	div += "<li>"+item+"</li>";
-	// }
-
+	
 	div += "<li>简介：" + summary + "</li></div><hr/>" ;
 
 	return div;
