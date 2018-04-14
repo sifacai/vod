@@ -72,8 +72,9 @@ http.createServer(function(req,ress){
 	}
 
 	if(args["name"]=="pic"){
-		var picn = args[filename];
-		transFile(coverroot+picn,mimeTypes[pat.extname(picn).toLowerCase()],undefined);
+		var picn = args["filename"];
+		transFile(coverroot+picn,mimeTypes[pathh.extname(picn).toLowerCase()],undefined);
+		return;
 	}
 
 	var realpathname = "";
@@ -161,6 +162,12 @@ function readdir(path){
 function transFile(path,mime,range){
 	realpath = path;	
 	var stat = checkpathstat(realpath);
+
+	if(stat == undefined){
+		outmiss("目标没找到！");
+		return;
+	}
+
 	
 	var startPos;
 	if(range==undefined){
@@ -232,21 +239,28 @@ function videohtml(path,file){
 	var summary = "";
 
 	if(movieinfo == undefined){
-		reptile.searchMovie(basename,MovieInfoJson);
+		var searchMovie = new reptile(basename,MovieInfoJson);
 	}else{
 		cover = movieinfo["picfilename"];
 		dbinfo = movieinfo["filminfo"];
 		rating = movieinfo["rating"];
 		summary = movieinfo["summary"];
+		// console.log("cover"+cover);
+		// console.log("rating"+ rating);
+		// console.log("summary"+ summary);
+		// console.log(dbinfo);
 	}
 
 	var div =   "<div class='videoDiv' >" +
-				"<p><a href='?name=play&filename=" + moviehref + "' ><h1>" + basename + "</h1> </a> </p>" + 
+				"<p><a href='?name=play&filename=" + moviehref + "' ><h1>" + basename + "</h1><i>豆瓣评分："+rating+"</i> </a> </p>" + 
 				"<a href='?name=pic&filename=" + cover + "' ><img src='?name=pic&filename="+ cover +"'  /> </a>" ;
 
-	for(item in dbinfo){
-		div += "<li>"+item+"</li>";
-	}
+	dbinfo.forEach(function(item,i){
+		div += "<li>"+ item.trim() + "</li>";
+	});
+	// for(item in dbinfo){
+	// 	div += "<li>"+item+"</li>";
+	// }
 
 	div += "<li>简介：" + summary + "</li></div><hr/>" ;
 

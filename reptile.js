@@ -2,18 +2,20 @@ var https = require("https");
 var fs = require("fs");
 var qs =  require("querystring");
 var config = require("./config.json");
+var cheerio = require('cheerio');
 
-var MovieFileName;
+//var MovieFileName;
 var MovieFileJson;
 var movieinfofile = config["movieinfofile"];
 
 var cover = config["cover"];
 
-exports.searchMovie = function(moviename,MovieJson){
-	MovieFileName = moviename;
+function searchMovie(moviename,MovieJson){
+	var MovieFileName = moviename;
 	MovieFileJson = MovieJson;
 
-	var searchUrl = "https://movie.douban.com/j/subject_suggest?q=" + qs.escape(name);
+	var searchUrl = "https://movie.douban.com/j/subject_suggest?q=" + qs.escape(moviename);
+	console.log("开始处理："+ moviename + " 请求地址是："+ searchUrl);
 	
 	var resdata="";
 	https.get(searchUrl,function(res){
@@ -22,14 +24,20 @@ exports.searchMovie = function(moviename,MovieJson){
 				resdata+=data;
 			});
 			res.on("end",function(){
-				getMovieHtml(resdata);
+				getMovieHtml(moviename,resdata);
+				console.log(MovieFileName+"搜索完成");
+				console.log(resdata);
 			});
+		}else{
+			console.log(MovieFileName+"搜索失败！");
 		}
+
 	});
 }
 
-function getMovieHtml(data){
+function getMovieHtml(moviename,data){
 	data = JSON.parse(data);
+	console.log(moviename+"搜索到:"+data.length+"条数据");
 	if(data.length<1) return;
 	var target = data[0].url;
 
@@ -40,13 +48,16 @@ function getMovieHtml(data){
 				resdata+=data;
 			});
 			res.on("end",function(){
-				queryFileHtml(resdata);
+				queryFileHtml(moviename,resdata);
 			});
+		}else{
+			console.log(moviename+"获取正文失败");
 		}
+
 	});
 }
 
-function queryFileHtml(HtmlData){
+function queryFileHtml(moviename,HtmlData){
 	var movieinfo ={};
 
 	var allhtml = cheerio.load(HtmlData);
@@ -67,18 +78,23 @@ function queryFileHtml(HtmlData){
 	var resdata = "";
 	var picExtname = pic.substr(pic.lastIndexOf("."));
 
-	movieinfo.picfilename = MovieFileName + picExtname;
+	movieinfo.picfilename = moviename + picExtname;
 
 	https.get(pic,function(res){
-		if(res.statusCode){
-			res.setEncoding("binary");		
+		res.setEncoding("binary");
+		if(res.statusCode==200){
+					
 			res.on("data",function(data){
 				resdata+=data;
 			});
 			res.on("end",function(){
-				fs.writeFileSync( cover + MovieFileName + picExtname , resdata, "binary" );
+				fs.writeFileSync( cover + moviename + picExtname , resdata, "binary" );
+				console.log(moviename+"封面保存成功!");
 			});
+		}else{
+			console.log(moviename+"封面获取失败!");
 		}
+
 	});
 
 	var filminfo = allhtml('#info').text().split("\n");         //电影详情
@@ -92,11 +108,14 @@ function queryFileHtml(HtmlData){
 
 	movieinfo.filminfo = info;
 	
-	MovieFileJson[MovieFileName] = movieinfo;
+	MovieFileJson[moviename] = movieinfo;
 
-	saveFilminfo(MovieFileJson);
+	saveFilminfo(moviename);
 }
 
-function saveFilminfo(){
+function saveFilminfo(moviename){
 	fs.writeFileSync( movieinfofile, JSON.stringify(MovieFileJson) );
+	console.log(moviename+"电影信息保存成功");
 }
+
+module.exports = searchMovie;

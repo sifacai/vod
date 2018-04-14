@@ -1,5 +1,5 @@
 {
-	"root" : "d:" ,
-	"cover" : "d:\\cover\\",
-	"movieinfofile" : "d:\\cover\\movie.json"
+	"root" : "/srv/dev-disk-by-label-store/movie" ,
+	"cover" : "/srv/dev-disk-by-label-store/movie/cover/",
+	"movieinfofile" : "/srv/dev-disk-by-label-store/movie/cover/movieinfo.json"
 }
