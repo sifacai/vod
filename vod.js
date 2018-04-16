@@ -17,10 +17,8 @@ var password="password";
 var root = config["root"];  //根目录
 var coverroot = config["cover"]; //封面目录
 
-var res; //response
 
-http.createServer(function(req,ress){
-	res=ress;
+http.createServer(function(req,res){	
 	
 	var requrl = url.parse(req.url);
     var args = qs.parse(qs.unescape(requrl.query));	
@@ -57,23 +55,23 @@ http.createServer(function(req,ress){
 
 	cookies=qs.parse(cookies,"; ");
 	if(user!=cookies.user){
-		login("用户名错误！");			
+		login("用户名错误！",res);			
 		return;
 	}
 	if(md5(password)!=cookies.password){
-		login("密码错误！");
+		login("密码错误！",res);
 		return;
 	}
 
 	//播放视频
 	if(args["name"]=="play"){              
-		playhtml(args["filename"]);
+		playhtml(args["filename"],res);
 		return;
 	}
 
 	if(args["name"]=="pic"){
 		var picn = args["filename"];
-		transFile(coverroot+picn,mimeTypes[pathh.extname(picn).toLowerCase()],undefined);
+		transFile(coverroot+picn,mimeTypes[pathh.extname(picn).toLowerCase()],undefined,res);
 		return;
 	}
 
@@ -94,33 +92,33 @@ http.createServer(function(req,ress){
 	var pathstat = checkpathstat(realpathname);
 
 	if(pathstat==undefined){
-		outmiss("资源未找到!");
+		outmiss("资源未找到!",res);
 	}else{
 
 		if(pathstat.isDirectory()){
 			if(pathname != "/") realpathname += "/";
-			readdir(realpathname);
+			readdir(realpathname,res);
 		}else if(pathstat.isFile()){
 			var ext = pathh.extname(realpathname);
 			var mime = mimeTypes[ext.toLowerCase()];
 			if(mime == undefined){
-				outmiss("未知MIME类型！");
+				outmiss("未知MIME类型！",res);
 			}else{
-				transFile(realpathname,mime,req.headers.range);				
+				transFile(realpathname,mime,req.headers.range,res);				
 			}
 		}else{
-			outmiss("未知目标类型！");
+			outmiss("未知目标类型！",res);
 		}
 	}
 
 }).listen(3333);
 console.log("开始运行，端口号：3333");
 
-function readdir(path){	
+function readdir(path,res){	
 	console.log("path is :"+path);
 	fs.readdir(path,function(err,files){
 		if(err){
-			outmiss(path+"没有找到！页面丢失!");
+			outmiss(path+"没有找到！页面丢失!",res);
 		}else{
 			res.writeHead(200,{"Content-Type":"text/html;charset=utf8"});
 			res.write(htmlheader)
@@ -159,7 +157,7 @@ function readdir(path){
 	})
 }
 
-function transFile(path,mime,range){
+function transFile(path,mime,range,res){
 	realpath = path;	
 	var stat = checkpathstat(realpath);
 
@@ -213,12 +211,12 @@ function checkpathstat(path){
 	return stat;	
 }
 
-function outmiss(txt){
+function outmiss(txt,res){
 	res.writeHead(404,{"Content-Type":"text/html;charset=utf8"});
 	res.end(htmlheader+txt+htmlbottom);
 }
 
-function login(txt){	
+function login(txt,res){	
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
 	res.write("<h1>"+txt+"</h1>");
@@ -244,10 +242,6 @@ function videohtml(path,file){
 		dbinfo = movieinfo["filminfo"];
 		rating = movieinfo["rating"];
 		summary = movieinfo["summary"];
-		// console.log("cover"+cover);
-		// console.log("rating"+ rating);
-		// console.log("summary"+ summary);
-		// console.log(dbinfo);
 	}else{
 		dbinfo[0] = "没有资料！";
 		summary = "没有简介" ;
@@ -266,7 +260,7 @@ function videohtml(path,file){
 	return div;
 }
 
-function playhtml(pathname){
+function playhtml(pathname,res){
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.write(htmlheader);
 	res.write("<video src='"+pathname+"' controls='controls' preload >您需要更高级的浏览器。</video>");
