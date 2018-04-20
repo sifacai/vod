@@ -3,6 +3,8 @@ var http = require("http");
 var qs = require("querystring");
 var url = require("url");
 var events = require("events");
+var mimeTypes = require("./mime.json");
+var videoMime = require("./videoMime.json");
 var config = require("./config.json");
 
 var root = config["root"];
@@ -43,13 +45,11 @@ var server = http.createServer(function(req,res){
 	console.log("filename is: "+filename);
 
 	switch(action){
-		case "folder":
+		case "list":
 			ReadDir(folder,res);
-			break;
-		case "file":
-			TransFile(filename,req.headers.range,res);
-			break;
+			break;		
 		case "play":
+
 			break;
 		default:
 			handler.emit("miss",res);
@@ -59,7 +59,6 @@ var server = http.createServer(function(req,res){
 
 	
 });
-
 server.listen(3333);
 
 function ReadDir(path,res){	
@@ -110,7 +109,39 @@ function ReadDir(path,res){
 		
 }
 
-function TransFile(statusCode,FileName,res){
+function TransFile(FileName,res){
+	var realpath = root+FileName;
+
+	vat filestat = CheckStat(realpath);
+	var LastModified = filestat.mtime ;
+	var etag = md5(realpath+LastModified);
+
+
+	var extname = FileName.substr(FileName.indexOf("."));
+	var mime = mimeTypes[extname];
+
+	if(mime == undefined) mime = "application/octet-stream";
+
+	var statucode = 200;
+	var startPos = 0;
+	var range = req.headers.range;
+	if(range != undefined ){
+		range = range.replace("bytes=","");
+		range = substr(0,range.indexOf("-")).trim();
+		startPos = Number(range);
+		statucode = 206;
+	}
+
+	res.writeHead(statucode,{ 
+							"Content-Type" : mime ,
+							"Content-Range" : "bytes "+ startPos + "-" + (stat.size-1) + "/" + stat.size ,
+							"Content-Length" : stat.size-startPos ,
+							"Etag" : etag , 
+							"Last-Modified"  : LastModified.toUTCString()
+						});
+	
+
+
 	var realpath = root+FileName;
 	var readstream = fs.createReadStream(realpath,{ flags: "r",start: startPos, end: stat.size });
 	readstream.pipe(res);
@@ -124,6 +155,14 @@ function CheckStat(pathname){
 		console.log(err);
 	}
 	return stat;
+}
+
+function md5(txt){
+	var crypto=require('crypto');  
+	var md5=crypto.createHash("md5");  
+	md5.update(txt);  
+	var str=md5.digest('hex');  
+	return str.toUpperCase();
 }
 
 handler.on("miss",function(res){
