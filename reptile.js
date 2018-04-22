@@ -15,7 +15,6 @@ function searchMovie(moviename,MovieJson){
 	MovieFileJson = MovieJson;
 
 	var searchUrl = "https://movie.douban.com/j/subject_suggest?q=" + qs.escape(moviename);
-	console.log("开始处理查询："+ moviename);
 	
 	var resdata="";
 	https.get(searchUrl,function(res){
@@ -34,8 +33,7 @@ function searchMovie(moviename,MovieJson){
 }
 
 function getMovieHtml(moviename,data){
-	data = JSON.parse(data);
-	console.log(moviename+"搜索到:"+data.length+"条数据");
+	data = JSON.parse(data);	
 	if(data.length<1){
 		MovieFileJson[moviename] = "";
 		saveFilminfo(moviename);
@@ -117,7 +115,6 @@ function queryFileHtml(moviename,HtmlData){
 
 function saveFilminfo(moviename){
 	fs.writeFileSync( movieinfofile, JSON.stringify(MovieFileJson) );
-	console.log(moviename+"资料保存成功");
 }
 
 module.exports = searchMovie;

@@ -33,44 +33,44 @@ var server = http.createServer(function(req,res){
 	var args = requrl.query;
 	var cookies = req.headers.cookie;
 
-	if(args == null){
-		handler.emit("miss",res);
-		return;
-	}
-	
 	args = qs.parse(qs.unescape(args));
 
-	console.log(args);
+	if(pathname == "/") pathname="";
 
-	var action = args["action"];
-	var folder = args["folder"];
-	var filename = args["filename"];
-
-	console.log("action is: "+action);
-	console.log("folder is: "+folder);
-	console.log("filename is: "+filename);
-
-	switch(action){
-		case "list":
-			ReadDir(folder,res);
-			break;		
-		case "play":
-			playhtml(filename,res);
+	switch(pathname){
+		case "/css.css":
+			TransFile(__dirname+"/"+"css.css",res,req);
 			break;
-		case "file":
-			TransFile(filename,res,req);
+		case "/js.js":
+			TransFile(__dirname+"/"+"js.js",res,req);
+			break;
+		case "/play":
+			playhtml(args["filename"],res,req);
 			break;
 		default:
-			handler.emit("miss",res,"请检查路径！");
-			break;
-	}
+			var stat = CheckStat(root + pathname);
+			if(stat == null){
+				handler.emit("miss",res,"错误的请求！");
+				return;
+			}
 
-	
+			if(stat.isDirectory()){
+				ReadDir(root + pathname,res);
+			}else{
+				TransFile(root+pathname,res,req);
+			}
+			break;
+	}	
 });
 server.listen(3333);
 
-function ReadDir(path,res){	
-	var realpath = root + path;
+function gotoindex(res){
+	res.writeHead(301, {'Location': '/?action=list&folder=/'});  
+  	res.end();
+}
+
+function ReadDir(path,res){
+	var realpath = path;
 	var stat = CheckStat(realpath);
 	if(stat == null){
 		handler.emit("miss",res,"目标读取错误！");
@@ -96,7 +96,7 @@ function ReadDir(path,res){
 
 				var div="";
 				itemfolders.forEach(function(file){
-					div += "<p class='pitem'><a href='?action=list&folder="+ realpath.replace(root,"") + "/" + file +"' >"+file+"</a></p><hr/>";
+					div += "<p class='pitem'><a href='"+ realpath.replace(root,"") + "/" + file +"' >"+file+"</a></p><hr/>";
 				});
 
 				itemfiles.forEach(function(file){
@@ -108,8 +108,7 @@ function ReadDir(path,res){
 					var extname = file.substr(pos);
 					var mime = videoMime[extname];
 					if(mime != undefined){
-						div += videohtml(basename).replace("$MovieHref$",realpath.replace(root,"") + "/" + file);
-						//div += "<p class='pitem'><a href='?action=play&filename="+ realpath.replace(root,"") + "/" + file +"' >"+file+"</a></p><hr/>";					
+						div += videohtml(basename, realpath.replace(root,"") + "/" + file);
 					}
 				});
 				
@@ -121,13 +120,13 @@ function ReadDir(path,res){
 }
 
 function playhtml(pathname,res,req){
-	var src = "?action=file&filename=" + pathname;
+	var src = pathname;
 	var videohtml= "<video src='" + src + "' controls='controls' preload >您需要更高级的浏览器。</video>"
 	res.writeHead(200,{"Content-Type":"text/html"});
 	res.end(html.replace("$body$",videohtml));
 }
 
-function videohtml(basename){
+function videohtml(basename,realpath){
 
 	var movieinfo = MovieInfoJson[basename];
 	var cover = "cover.jpg";
@@ -148,8 +147,8 @@ function videohtml(basename){
 	}
 
 	var div =   "<div class='videoDiv' >" +
-				"<p><a href='?action=play&filename=$MovieHref$' ><h1>" + basename + "</h1><i>豆瓣评分："+rating+"</i> </a> </p>" + 
-				"<a href='?action=play&filename=" + movieinfo + "' ><img src='?action=file&filename="+ coverroot+ "/" +cover +"'  /> </a>" ;
+				"<p><a href='/play?filename="+ realpath +"' ><h1>" + basename + "</h1><i>豆瓣评分："+rating+"</i> </a> </p>" + 
+				"<a href='/play?filename="+ realpath +"' ><img src='"+ coverroot+ "/" +cover +"'  /> </a>" ;
 
 	dbinfo.forEach(function(item,i){
 		div += "<li>"+ item.trim() + "</li>";
@@ -161,7 +160,7 @@ function videohtml(basename){
 }
 
 function TransFile(FileName,res,req){
-	var realpath = root+FileName;
+	var realpath = FileName;
 
 	var filestat = CheckStat(realpath);
 	if(filestat == null){
@@ -173,7 +172,7 @@ function TransFile(FileName,res,req){
 	var etag = md5(realpath+LastModified);
 
 
-	var extname = FileName.substr(FileName.indexOf("."));
+	var extname = FileName.substr(FileName.lastIndexOf("."));
 	var mime = mimeTypes[extname];
 
 	if(mime == undefined) mime = "application/octet-stream";
@@ -197,8 +196,20 @@ function TransFile(FileName,res,req){
 							"Last-Modified"  : LastModified.toUTCString()
 						});
 
-	var readstream = fs.createReadStream(realpath,{ flags: "r",start: startPos, end: (filestat.size-1) });
-	readstream.pipe(res);
+	var readstream = fs.createReadStream(realpath,{ 
+													encoding : 'binary', 
+													bufferSize : 1024 * 1024, 
+													flags: "r",start: startPos, 
+													end: (filestat.size-1) 
+												});
+	
+	readstream.on("data",function(chunk) {
+		res.write(chunk,"binary");		
+	});
+	readstream.on("end",function(){
+		res.end();
+	});	
+	//readstream.pipe(res);
 }
 
 function CheckStat(pathname){
@@ -220,10 +231,11 @@ function md5(txt){
 }
 
 handler.on("miss",function(res,txt){
+	res.writeHead(404,{"Content-Type":"text/html,charset=utf-8"});
 	res.end(html.replace("$body$",txt));
 });
 
 var html = "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"+
-		   "<link rel=\"stylesheet\" href=\"?action=file&filename=/css.css\" />" +	
+		   "<link rel=\"stylesheet\" href=\"/css.css\" />" +	
 		   "<script type='text/javascript' src='/js.js' ></script>" +
 		   "</head><body>$body$</body></html>";
